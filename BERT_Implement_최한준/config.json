@@ -1,0 +1,14 @@
+{
+    "n_enc_vocab": 0,
+    "n_enc_seq": 512,
+    "n_seg_type": 2,
+    "n_layer": 12,
+    "d_hidn": 768,
+    "i_pad": 0,
+    "d_ff": 3072,
+    "n_head": 12,
+    "d_head": 64,
+    "dropout": 0.1,
+    "layer_norm_epsilon": 1e-12,
+    "n_output": 2
+}
