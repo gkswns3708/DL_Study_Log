@@ -15,3 +15,5 @@ Deep Learning Study 기록을 남기는 Repo입니다!
 |GAN|MNIST 데이터셋과 MLP를 이용한 학습 코드 작성|[박시형](https://github.com/sihyeong671)|[Link](https://gkswns3708.notion.site/GAN-c6c221c98a1f4060b9e2d3ca56f4cde8)
 |Transformer|네이버 영화 감상 리뷰 데이터 셋과 Transformer Naive 구현|[최한준](https://github.com/gkswns3708)|[Link](https://gkswns3708.notion.site/Transformer-44078c0b76b04c29aa67b0145848a145)
 |BERT|네이버 영화 감상 리뷰 데이터 셋과 BERT Naive 구현|[이재혁](https://github.com/JaeHyeok-2)|[Link](https://gkswns3708.notion.site/BERT-c638086dde90428cb9daed71d373c18f)
+|Image Caption|Image & Caption Pair Dataset을 이용한 Image Captioning Task 구현|[최한준](https://github.com/gkswns3708)|[Link](https://gkswns3708.notion.site/Show-and-Tell-A-Neural-Image-Caption-Generator-40f732e1cef74621b7df0e5007d1ac43)
+
