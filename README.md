@@ -17,3 +17,4 @@ Deep Learning Study 기록을 남기는 Repo입니다!
 |BERT|네이버 영화 감상 리뷰 데이터 셋과 BERT Naive 구현|[이재혁](https://github.com/JaeHyeok-2)|[Link](https://gkswns3708.notion.site/BERT-c638086dde90428cb9daed71d373c18f)
 |Image Caption|Image & Caption Pair Dataset을 이용한 Image Captioning Task 구현|[최한준](https://github.com/gkswns3708)|[Link](https://gkswns3708.notion.site/Show-and-Tell-A-Neural-Image-Caption-Generator-40f732e1cef74621b7df0e5007d1ac43)
 |Cycle GAN|[Samsung Ai Challenge](https://dacon.io/competitions/official/235954/overview/description)의 Dataset으로 CycleGAN 구현|[최한준](https://github.com/gkswns3708)|[Link](https://gkswns3708.notion.site/Unpaired-Image-to-Image-Translation-using-Cycle-Consistent-Adversarial-Networks-2017-bd28c2bda35a4a05beadf54e38c738f4)
+|DenseNet|Torchvision의 STL10의 Dataset으로 DenseNet 학습 pipeline 구현|[최한준](https://github.com/gkswns3708)|[Link](https://gkswns3708.notion.site/Densely-Connected-Convolutional-Networks-DenseNet-59cf4433db2e4d2f828130f39a280484)
