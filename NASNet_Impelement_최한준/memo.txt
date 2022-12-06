@@ -1,0 +1,3 @@
+RNN까지 학습시키는 github Link : https://github.com/MarSaKi/nasnet
+"학습된 Architecture"를 구현한 github Link : https://github.com/wandering007/nasnet-pytorch
+추후 구현 예정
