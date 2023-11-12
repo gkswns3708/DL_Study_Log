@@ -7,8 +7,35 @@ class VAE_AttentionBlock(nn.Module):
     
     def __init__(self, channels: int):
         super().__init__()
+        # GroupNorm 관련 내용 -> Notion 참고
         self.groupnorm = nn.GroupNorm(32, channels)
+        self.attention = SelfAttention(1, channels)
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x : (Batch_size, Features, Height, Width)
+        
+        residue = x
+        
+        n, c, h, w = x.shape
+        
+        # (Batch_size, Features, Height, Width) ->  (Batch_size, Features, Height * Width)
+        x = x.view(n, c, h * w)
+        
+        # (Batch_size, Features, Height * Width) -> (Batch_size, Height * Width, Features)
+        # 여기서는 ViT에서처럼 각 pixel간의 relate를 계산하는 Attention을 사용함.
+        # 기존의 token embedding간의 attention을 계산하는 것과 같은 매커니즘.
+        x = x.transpose(-1, -2) 
+        
+        # (Batch_size, Height * Width, Features) -> (Batch_size, Height * Width, Features)
+        x = self.attention(x)
+        # (Batch_size, Height * Width, Features) -> (Batch_size, Features, Height * Width)
+        x = x.transpose(-1, -2)
 
+        x = x.view((n, c, h, w))
+        
+        return x + residue
+        
+        
 class VAE_ResidualBlock(nn.Moudle):
     
     def __init__(self, in_channels, out_channels):
