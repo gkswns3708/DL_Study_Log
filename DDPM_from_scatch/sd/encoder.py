@@ -91,11 +91,22 @@ class VAE_Encoder(nn.Sequential):
         mean, log_variance = torch.chunk(x, 2, dim=1) 
         
         # (Batch_size, 4, Height / 8, Width / 8) -> (Batch_size, 4, Height / 8, Width / 8)
+        # 크기를 -30에서 20사이로 조절함. -30이하면 -30, 20이상이면 20, 그 외에는 본연의 값을 유지합니다. 
         log_variance  = torch.clamp(log_variance, -30, 20)
         
         # (Batch_size, 4, Height / 8, Width / 8) -> (Batch_size, 4, Height / 8, Width / 8)
         variance = log_variance.exp()
         
         # (Batch_size, 4, Height / 8, Width / 8) -> (Batch_size, 4, Height / 8, Width / 8)
-        stdev = variance.sqrt()
+        stdev = variance.sqrt() 
+        
+        # Z = N(0, 1) -> N(mean, variance) = X?
+        # X = mean + stdev * z 
+        x = mean + stdev * noise
+        
+        # Scale the output by a constant -> There is no historical reason. But without this constant, performance is lower than it exists.
+        x *= 0.18125
+        
+        return x
+        
         
