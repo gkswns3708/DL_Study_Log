@@ -74,9 +74,90 @@ class UNET_ResidualBlock(nn.Module):
         
         return merged + self.residual_layer(residue)
         
+class UNET_AttentionBlock(nn.Module):
+    
+    def __init__(self, n_head: int, n_embed: int, d_context=768):
+        super().__init__()
+        channels = n_head * n_embed
+        
+        self.groupnorm = nn.GroupNorm(32, channels, eps=1e-6)
+        self.conv_input = nn.Conv2d(channels, channels, kernel_size=1, padding=0)
+        
+        self.layernorm_1 = nn.LayerNorm(channels)
+        self.attention_1 = SelfAttention(n_head, channels, in_proj_bias=False)
+        self.layernorm_2 = nn.LayerNorm(channels)
+        self.attention_2 = CrossAttention(n_head, channels, d_context, in_proj_bias=False)
+        self.layernorm_3 = nn.LayerNorm(channels)
+        self.linear_geglu_1 = nn.Linear(channels, 4 * channels * 2)
+        self.linear_geglu_2 = nn.Linear(4 * channels, channels)
+        
+        self.conv_output = nn.Conv2d(channels, channels, kernel_size=1, padding=0)
+        
+    def forward(self, x, context):
+        # x: (Batch_Size, Features, Height, Width)
+        # context: (Batch_Size, Seq_Len, Dim(=768))
+        # Input에 대해서 Transformer에서 했던 것처럼 latent(x)에 normalization을 적용 후 convolution함, 물론 Transformer에는 convolutio이 없긴 함 ㅋ
+        
+        residue_long = x
+        
+        x = self.groupnorm(x)
+        
+        x = self.conv_input(x)
+        
+        n, c, h, w= x.shape
+        
+        # (Batch_Size, Features, Height, Width) -> (Batch_Size, Features, Height * Width)
+        x = x.view((n,c , h * w))
+        # cross attention을 적용하기 위해 transpose를 함.
+        
+        # (Batch_Size, Features, Height * Width) -> (Batch_Size, Height * Width,  Features)
+        x = x.transpose(-1, -2)
+        
+        # Normalization + Self Attention with skip connection
+        residue_short = x
+        
+        x = self.layernorm_1(x)
+        self.attention_1(x) # 이 파트는 일반적인 Transformer Figure(MultiHead Attention)에서 보는 것처럼 진행됨.
+        x += residue_short
+        
+        residue_short = x
+        
+        # Normalization + Cross Attention with skip connection
+        x = self.layernorm_2(x)
+        
+        # Cross Attention
+        self.attention_2(x, context) # 이 파트는 Cross Attention을 계산함. TODO: 이 파트가 명확하게 그림이 잘 안 그려짐, 다시 제대로 생각해봐야 할 듯.
+        
+        x += residue_short
+        
+        reidue_short = x
+        
+        # Normalization + FF(Feed Forward) with GeGLU and skip connection
+        
+        x = self.layernorm_3(x)
+        
+        # TODO: 실제 Stable diffusion에서 아래와 같이 구현되어 있다고 함. 확인해봐야 할 듯.
+        x, gate = self.linear_geglu_1(x).chunk(2, dim=-1)
+        
+        # element wise multiplication
+        # 그리고 이러한 연산을 하는 이유는 이러한 application에서 더 성능이 좋았기 때문임. 다른 이유는 없음.
+        x = x * F.gelu(gate) 
+        
+        x = self.linear_geglu_2(x)
+        
+        x += residue_short
+        
+        # (Batch_Size, Width * Height, Features) -> (Batch_Size, Features , Width * Height)
+        x = x.transpose(-1, -2)
+        
+        # (Batch_Size, Features , Width * Height) -> (Batch_Size, Features , Width, Height)
+        x = x.view((n, c, h, w))
+        
+        return self.conv_output(x) + residue_long
         
         
-            
+        
+
 class Upsample(nn.Module):
     
     def __init__(self, channels: int):
