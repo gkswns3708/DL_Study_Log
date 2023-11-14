@@ -28,6 +28,54 @@ class SwitchSequential(nn.Sequential):
             else:
                 x = layer(x)
         return x
+    
+class UNET_ResidualBlock(nn.Module):
+    
+    def __init__(self, in_channels: int, out_channels: int, n_time=1280):
+        # time_embedding의 크기가 1280이므로 n_time = 1280
+        super().__init__()
+        self.groupnorm_feature = nn.GroupNorm(32, in_channels)
+        self.conv_feature = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
+        self.linear_time = nn.Linear(n_time, out_channels)
+        
+        self.groupnorm_merged = nn.GroupNorm(32, out_channels)
+        self.conv_merged = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
+        
+        if in_channels == out_channels:
+            # residual connection시에 in_channel과 out_channel이 같으면 그냥 연결하면 됨.
+            self.residual_layer = nn.Identity()
+        else:
+            self.residual_layer = nn.Conv2d(in_channels, out_channels, kernel_size=1, padding=0)
+    
+    def forward(self, feature, time):
+        # feature : latent -> (Batch_Size, In_channels, Height, Width)
+        # time : (1, 1280)
+        
+        residue = feature
+        
+        feature = self.groupnorm_feature(feature)
+        
+        feature = F.silu(feature)
+        
+        feature = self.conv_feature(feature)
+        
+        time = F.silu(time)
+        
+        time = self.linear_time(time)
+        
+        # Time embedding에는 Batch와 Channel에 대한 dimension이 없으므로 unsqueeze를 2번함.
+        merged = feature + time.unsqueeze(-1).unsqueeze(-1)
+        
+        merged = self.groupnorm_merged(merged)
+        
+        merged = F.silu(merged)
+        
+        merged = self.conv_merged(merged)
+        
+        return merged + self.residual_layer(residue)
+        
+        
+        
             
 class Upsample(nn.Module):
     
@@ -110,6 +158,24 @@ class UNET(nn.Module):
             SwitchSequential(UNET_residualBlock(640, 320), UNET_AttentionBlock(8, 40)),
         ])
         
+
+class UNET_OutputLayer(nn.Module):
+    def __init__(self, in_channels: int, out_channels: int):
+        super().__init__()
+        self.grouopnorm = nn.roupNorm(32, in_channels)
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
+    
+    def forward(self, x):
+        # (Batch_Size, 320, Height / 8, Width / 8)
+        
+        x = self.groupnorm(x)
+        
+        x = F.silu(x)
+        
+        # (Batch_Size, 4, Height / 8, Width / 8)
+        x = self.conv(x)
+        
+        return x
         
 
 class Diffusion(nn.Module):
