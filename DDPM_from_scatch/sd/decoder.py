@@ -16,6 +16,8 @@ class VAE_AttentionBlock(nn.Module):
         
         residue = x
         
+        x = self.groupnorm(x)
+        
         n, c, h, w = x.shape
         
         # (Batch_size, Features, Height, Width) ->  (Batch_size, Features, Height * Width)
@@ -36,7 +38,7 @@ class VAE_AttentionBlock(nn.Module):
         return x + residue
         
         
-class VAE_ResidualBlock(nn.Moudle):
+class VAE_ResidualBlock(nn.Module):
     
     def __init__(self, in_channels, out_channels):
         super().__init__()
@@ -94,8 +96,10 @@ class VAE_Decoder(nn.Sequential):
             
             VAE_ResidualBlock(512, 512),
             
-            # (Batch_Size, 512, Height / 8, Width / 8) -> (Batch_Size, 512, Height / 8, Width / 8)
             VAE_ResidualBlock(512, 512),
+            
+            # (Batch_Size, 512, Height / 8, Width / 8) -> (Batch_Size, 512, Height / 8, Width / 8)
+            VAE_ResidualBlock(512, 512), 
             
             # TODO : nn.Upsample -> 고전 방식의 up-scaling방식이며,  nearest neighbor와 bilinear, bicubic 인터폴레이션 등이 이에 해당
             # (Batch_Size, 512, Height / 8, Width / 8) -> (Batch_Size, 512, Height / 4, Width / 4)
@@ -119,7 +123,7 @@ class VAE_Decoder(nn.Sequential):
             # (Batch_Size, 256, Height / 2, Width / 2) -> (Batch_Size, 256, Height, Width)
             nn.Upsample(scale_factor=2),
             
-            nn.Conv2d(256, 356, kernel_size=3, padding=1),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
             
             VAE_ResidualBlock(256, 128),
             VAE_ResidualBlock(128, 128),

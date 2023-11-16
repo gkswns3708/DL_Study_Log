@@ -7,8 +7,8 @@ class CLIPEmbedding(nn.Module):
     def __init__(self, n_vocab: int, n_embed: int, n_tokens: int):
         super().__init__()
         
-        self.token_embeddng = nn.Embeding(n_vocab, n_embed)
-        self.position_embedding = nn.Parameter(torch.zeros(n_tokens, n_embed))
+        self.token_embedding = nn.Embedding(n_vocab, n_embed)
+        self.position_embedding = nn.Parameter(torch.zeros((n_tokens, n_embed)))
     
     def forward(self, tokens):
         # (Batch_Size, Seq_Len) -> (Batch_Size, Seq_Len, Dim)
@@ -27,7 +27,7 @@ class CLIPLayer(nn.Module):
         self.attention = SelfAttention(n_head, n_embed)
         self.layernorm_2 = nn.LayerNorm(n_embed)
         self.linear_1 = nn.Linear(n_embed, 4 * n_embed)
-        self.linear_2 = nn.Linear(5 * n_embed, n_embed)
+        self.linear_2 = nn.Linear(4 * n_embed, n_embed)
         
     def forward(self, x : torch.Tensor) -> torch.Tensor:
         # (Batch_Size, Seq_Len, Dim)
@@ -50,7 +50,7 @@ class CLIPLayer(nn.Module):
         
         x = self.linear_1(x)
         
-        x = x * torch.signmoid(1.702 * x) # QuickGELU activation function # Author said that this works better than others.
+        x = x * torch.sigmoid(1.702 * x) # QuickGELU activation function # Author said that this works better than others.
         
         x = self.linear_2(x)
         
@@ -61,13 +61,13 @@ class CLIPLayer(nn.Module):
 
 class CLIP(nn.Module):
     def __init__(self):
-        # TODO: 여기서는 왜 super() 안함?
+        super().__init__()
         # embedding을 이용해 word를 token으로 변환할 수 있습니ㅏㄷ.
         # 먼저 sentence의 word를 vocab을 이용해 matching되는 하나의 숫자로 변환하고(전처리가 된 sentence)
         # 각 embedding은 768크기를 가짐(Orignal Transformer는 512)
         self.embedding = CLIPEmbedding(49408, 768, 77) # Vocab_size, embedding_dim, Max_Seq_Len
         
-        self.layers = nn.Module([
+        self.layers = nn.ModuleList([
             CLIPLayer(12, 768) for i in range(12) # (number of head, embedding_dim)
         ])
         

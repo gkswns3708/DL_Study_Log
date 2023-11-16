@@ -1,6 +1,6 @@
 import torch 
 from torch import nn
-from torch.nn import function as F
+from torch.nn import functional as F
 from decoder import VAE_AttentionBlock, VAE_ResidualBlock
 
 class VAE_Encoder(nn.Sequential):
@@ -18,7 +18,7 @@ class VAE_Encoder(nn.Sequential):
             
             # 이전 layer의 output이 128channel이므로 input channel이 128
             # (Batch_size, 128, Height, Width) -> (Batch_size, 128, Height / 2, Width / 2)
-            nn.Conv2d(128, 128, kenel_size=3, stride=2, padding=0),
+            nn.Conv2d(128, 128, kernel_size=3, stride=2, padding=0),
 
             # (Batch_size, 128, Hieght / 2, Width / 2) -> (Batch_size, 256, Hieght / 2, Width / 2)
             VAE_ResidualBlock(128, 256), # Combination for Convolution and Normalization layer
@@ -27,7 +27,7 @@ class VAE_Encoder(nn.Sequential):
             VAE_ResidualBlock(256, 256), # Combination for Convolution and Normalization layer
             
             # (Batch_size, 256, Hieght / 2, Width / 2) -> (Batch_size, 256, Hieght / 4, Width / 4)
-            nn.Conv2d(256, 256, kenel_size=3, stride=2, padding=0),
+            nn.Conv2d(256, 256, kernel_size=3, stride=2, padding=0),
             
             # (Batch_size, 256, Hieght / 4, Width / 4) -> (Batch_size, 512, Hieght / 4, Width / 4)
             VAE_ResidualBlock(256, 512), # Combination for Convolution and Normalization layer
@@ -36,7 +36,7 @@ class VAE_Encoder(nn.Sequential):
             VAE_ResidualBlock(512, 512), # Combination for Convolution and Normalization layer
             
             # (Batch_size, 512, Hieght / 4, Width / 4) -> (Batch_size, 512, Hieght / 8, Width / 8)
-            nn.Conv2d(512, 512, kenel_size=3, stride=2, padding=0),
+            nn.Conv2d(512, 512, kernel_size=3, stride=2, padding=0),
             
             # (Batch_size, 512, Hieght / 8, Width / 8) -> (Batch_size, 512, Hieght / 8, Width / 8)
             VAE_ResidualBlock(512, 512), # Combination for Convolution and Normalization layer

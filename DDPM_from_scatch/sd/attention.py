@@ -5,7 +5,7 @@ import math
 
 class SelfAttention(nn.Module):
     
-    def __init__(self, n_heads: int, d_embed: int, in_proj_bias: True, out_proj_bias=True):
+    def __init__(self, n_heads: int, d_embed: int, in_proj_bias= True, out_proj_bias=True):
         super().__init__()
         self.in_proj = nn.Linear(d_embed, 3 * d_embed, bias=in_proj_bias) # W_{Q, K, V}, 이후에 Q, K, V로 분리될 예정.
         self.out_proj = nn.Linear(d_embed, d_embed) # W_0 Weight
@@ -21,7 +21,7 @@ class SelfAttention(nn.Module):
         intermim_shape = (batch_size, sequence_length, self.n_heads, self.d_head)
         
         # (Batch_size, Seq_Len, Dim) -> (Batch_size, Seq_Len, Dim * 3) -> 3 tensors of shape (Batch_size, Seq_Len, Dim)
-        q, k, v = self.in_proj(x).chunk(x, dim=-1)
+        q, k, v = self.in_proj(x).chunk(3, dim=-1)
         
         # TODO : 왜 transpose (1, 2)를 하는 것인가?
         # (Batch_size, Seq_len, Dim) -> (Batch_size, Seq_Len, H, Dim / H) -> (Batch_Size, H, Seq_Len, Dim / H)

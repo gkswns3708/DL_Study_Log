@@ -42,7 +42,7 @@ def generate(
     if seed is None:
         generate.seed()
     else:
-        generator.maual_seed(seed)
+        generator.manual_seed(seed)
 
     clip = models['clip']
     clip.to(device)
