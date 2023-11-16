@@ -11,10 +11,10 @@ LATENTS_HEIGHT = HEIGHT // 8
 
 def generate(
     prompt: str,
-    uncond_prompt: str,
+    uncond_prompt: str, # Negative prompt or empty string
     input_image=None,
-    strength=0.8,
-    do_cfg=True,
+    strength=0.8, # add noise proportionally  this paramter value
+    do_cfg=True, # Option for Classifier Free Guidence
     cfg_scale=7.5, # it indicates how much we want to pay attention to the coniditioned output with respect to the unconditional output which also means that how much we want the model to pay attention to the condition that we have specified what is the condition The Prompt 
     sampler_name="ddpm", 
     n_inference_steps=50, 
@@ -76,7 +76,7 @@ def generate(
     # this means move clip model to idle(현재 사용하지 않는) device(gpu -> cpu)
     to_idle(clip)
     
-    if sample_name == 'ddpm':
+    if sampler_name == 'ddpm':
         sampler = DDPMSampler(generator)
         sampler.set_inference_stpes(n_inference_steps)
     else:
