@@ -191,3 +191,12 @@ def rescale(x, old_range, new_range, clamp=False):
     if clamp:
         x = x.clamp(new_min, new_max)
     return x    
+
+def get_time_embedding(timestep):
+    # (160, )
+    freqs = torch.pow(10000, -torch.arange(start=0, end=160, dtype=torch.float32) / 160)
+    # (1, 160)
+    # TODO: 아래의 문법 이해하기. 왜 None이 들어가노;
+    x = torch.tensor([timestep], dtype=torch.float32)[:, None] * freqs[None]
+    # (1, 320)
+    return torch.cat([torch.cos(x), torch.sin(x)], dim=-1)
