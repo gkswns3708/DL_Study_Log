@@ -57,7 +57,7 @@ def generate(
         cond_context = clip(cond_tokens)
         
         # if we don't want specify, we will use the empty string
-        uncond_tokens = tokenizer.batch_encode_plus((uncond_prompt), padding="max_length", max_length=77).input_ids
+        uncond_tokens = tokenizer.batch_encode_plus([uncond_prompt], padding="max_length", max_length=77).input_ids
         uncond_tokens = torch.tensor(uncond_tokens, dtype=torch.long, device=device)
         # (Batch_Size, Seq_Len) -> (Batch_Size, Seq_Len, Dim(=768))
         uncond_context = clip(uncond_tokens)
