@@ -4,10 +4,11 @@ import numpy as np
 class DDPMSampler:
 
     def __init__(self, generator: torch.Generator, num_training_steps=1000, beta_start: float = 0.00085, beta_end: float = 0.0120):
-        # Params "beta_start" and "beta_end" taken from: https://github.com/CompVis/stable-diffusion/blob/21f890f9da3cfbeaba8e2ac3c425ee9e998d5229/configs/stable-diffusion/v1-inference.yaml#L5C8-L5C8
-        # For the naming conventions, refer to the DDPM paper (https://arxiv.org/pdf/2006.11239.pdf)
+        # 논문에서 1회의 denoising, noising 과정을 1 - \beta를 이용해 정의할 수 있었고, 이 과정을 누적곱을 이용해 특정 time step으로 점프할 수 있었음
+        # 아래의 alphas 배열을 이용해 점프할 때 필요현 noising, denoising할 때의 gaussian distribution 평균과 분산값을 알 수 있음.
         self.betas = torch.linspace(beta_start ** 0.5, beta_end ** 0.5, num_training_steps, dtype=torch.float32) ** 2
-        self.alphas = 1.0 - self.betas
+        self.alphas = 1.0 - self.betas 
+        # TODO : torch.cumprod : 누적곱을 하는 torch api
         self.alphas_cumprod = torch.cumprod(self.alphas, dim=0)
         self.one = torch.tensor(1.0)
 
@@ -18,10 +19,12 @@ class DDPMSampler:
 
     def set_inference_timesteps(self, num_inference_steps=50):
         self.num_inference_steps = num_inference_steps
+        print("num_inference_steps :", num_inference_steps)
         step_ratio = self.num_train_timesteps // self.num_inference_steps
         timesteps = (np.arange(0, num_inference_steps) * step_ratio).round()[::-1].copy().astype(np.int64)
         self.timesteps = torch.from_numpy(timesteps)
-
+        print("len(self.timesteps) : ", len(self.timesteps))
+        print("timesteps :", timesteps)
     def _get_previous_timestep(self, timestep: int) -> int:
         prev_t = timestep - self.num_train_timesteps // self.num_inference_steps
         return prev_t

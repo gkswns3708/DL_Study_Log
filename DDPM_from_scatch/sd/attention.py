@@ -68,7 +68,6 @@ class CrossAttention(nn.Module):
     def forward(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         # x : (latent): (Batch_Size, Seq_Len_Q, Dim_Q)
         # y : (contet) : (Batch_Size, Seq_Len_KV, Dim_KV) = (Batch_Size, 77, 768)
-        
         input_shape = x.shape
         batch_Size, sequence_length, d_embed = input_shape
         
@@ -84,7 +83,7 @@ class CrossAttention(nn.Module):
         v = v.view(interim_shape).transpose(1, 2)
         
         weight = q @ k.transpose(-1, -2)
-        weight /= math.sqert(self.d_head)
+        weight /= math.sqrt(self.d_head)
         
         # 여기서는 Masking과정을 하지 않는데, 그 이유는 단순하게도 image와 prompt간의 attention을 계산하기에, next word를 보면 안되는 그럼 개념이 없다.
         weight = F.softmax(weight, dim = -1)
