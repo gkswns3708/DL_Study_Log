@@ -7,4 +7,3 @@ __pycache__
 *.json
 cifar-10*
 *.tar.gz
-*/data/*
