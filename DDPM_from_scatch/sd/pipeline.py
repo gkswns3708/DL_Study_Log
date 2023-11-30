@@ -28,7 +28,7 @@ def generate(
     # strength는 입력 이미지와 생성된 이미지 사이에 유사도를 말함. 이게 높으면 입력 이미지와 아예 다른 이미지가 만들어지고, 낮으면 입력 이미지와 유사한 이미지가 생성됨.
     # do_cfg : do classifier free guidance, do_cfg는 모델이 분류자 없이 가이던스를 수행할지 여부를 결정하는 부울 플래그입니다. 이 옵션이 활성화되면, 모델은 분류자(classifier)를 사용하지 않고도 주어진 프롬프트에 대해 이미지를 생성하려고 시도합니다. 이는 모델이 특정 키워드나 개념에 집중하여 더 관련성 높은 이미지를 생성하게 도와줍니다.
     # cfg_scale : How much we want the model to pay attention to our prompt. 분류자 없는 가이던스(classifier-free guidance)의 정도를 결정하는 스케일링 팩터입니다. 이 값이 높을수록 모델은 주어진 텍스트 프롬프트에 더 많이 의존하여 이미지를 생성합니다. 반대로, 낮은 값은 모델이 데이터셋의 분포를 더 자유롭게 따르게 하여, 프롬프트에 덜 구속되는 이미지를 생성하게 합니다.
-    # TODO: idle_device가 무슨 뜻인지 이해하기. -> 현재 작업중이지 않은 device(CPU or GPU)
+    # idle_device가 무슨 뜻인지 이해하기. -> 현재 작업중이지 않은 device(CPU or GPU)
     with torch.no_grad():
         if not (0 < strength <= 1):
             raise ValueError("strength must be between 0 and 1")

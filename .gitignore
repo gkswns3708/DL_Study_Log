@@ -5,3 +5,6 @@ __pycache__
 *.pt
 *.ckpt
 *.json
+cifar-10*
+*.tar.gz
+*/data/*

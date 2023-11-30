@@ -25,6 +25,7 @@ class DDPMSampler:
         self.timesteps = torch.from_numpy(timesteps)
         print("len(self.timesteps) : ", len(self.timesteps))
         print("timesteps :", timesteps)
+        
     def _get_previous_timestep(self, timestep: int) -> int:
         prev_t = timestep - self.num_train_timesteps // self.num_inference_steps
         return prev_t
