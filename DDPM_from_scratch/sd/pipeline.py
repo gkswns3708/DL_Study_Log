@@ -69,7 +69,7 @@ def generate(
             # 하지만 model에게 prompt에 얼마나 attention을 해야할 지 결합할 수 없다.
             # TODO : 위 말의 근거를 생각하기.
             tokens = tokenizer.batch_encode_plus([prompt], padding= "max_length", max_length=77).input_ids
-            token = torch.Tensor(tokens, dtype=torch.long, device=device)
+            tokens = torch.Tensor(tokens, dtype=torch.long, device=device)
             # (1, 77, 768)
             context = clip(tokens)
         # since we have finishfed using the clip, we can move ti to the idle device
@@ -107,8 +107,8 @@ def generate(
             encoder_noise = torch.randn(latent_shape, generator=generator, device=device)
             # run the image thorugh of the VAE
             # TODO: 지금 여기서 noise한 image를 만들기 위해 noise를 더했는데, 왜 아래에서 sampler에 strength를 더하면서 add_noise를 하고 있는 것인가...?
-            print("input_image_tensor.device : ", input_image_tensor.device)
-            print("encoder_noise.device : ", encoder_noise.device)
+            # print("input_image_tensor.device : ", input_image_tensor.device)
+            # print("encoder_noise.device : ", encoder_noise.device)
             latents = encoder(input_image_tensor, encoder_noise)
             
             # strength paramter는 input image에 얼마나 attention할 것인지를 정하는 hypter parameter입니다. 
@@ -121,7 +121,7 @@ def generate(
             # TODO: 그럼 0이면 아예 없는건가?
             # strength level에 의해서 encoded image에 noise가 더해진다.
             sampler.set_strength(strength=strength)
-            latent = sampler.add_noise(latents, sampler.timesteps[0])
+            latents = sampler.add_noise(latents, sampler.timesteps[0])
             
             to_idle(encoder)
         else: # Text to Image Pipeline
@@ -180,7 +180,7 @@ def generate(
         images = rescale(images, (-1, 1), (0, 255), clamp=True)
         # (Batch_Size, Channel, Height, Width) -> (Batch_Size, Height, Width, Channel)
         images = images.permute(0, 2, 3, 1)
-        images = images.to('cpu', torch.uint8)
+        images = images.to('cpu', torch.uint8).numpy()
         
         return images[0]
 
@@ -200,7 +200,8 @@ def get_time_embedding(timestep):
     # (160, )
     freqs = torch.pow(10000, -torch.arange(start=0, end=160, dtype=torch.float32) / 160)
     # (1, 160)
-    # TODO: 아래의 문법 이해하기. 왜 None이 들어가노;
+    # freqs[None] -> freqs라는 tensor에 새로운 채원을 추가하는 문법.
+    # freqs : (160, ) -> freqs : (1, 160)
     x = torch.tensor([timestep], dtype=torch.float32)[:, None] * freqs[None]
     # (1, 320)
     return torch.cat([torch.cos(x), torch.sin(x)], dim=-1)

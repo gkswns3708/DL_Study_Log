@@ -22,7 +22,7 @@ class DDPMSampler:
         print("num_inference_steps :", num_inference_steps)
         step_ratio = self.num_train_timesteps // self.num_inference_steps
         timesteps = (np.arange(0, num_inference_steps) * step_ratio).round()[::-1].copy().astype(np.int64)
-        self.timesteps = torch.from_numpy(timesteps)
+        zz2.timesteps = torch.from_numpy(timesteps)
         print("len(self.timesteps) : ", len(self.timesteps))
         print("timesteps :", timesteps)
         

@@ -8,7 +8,7 @@ class SelfAttention(nn.Module):
     def __init__(self, n_heads: int, d_embed: int, in_proj_bias= True, out_proj_bias=True):
         super().__init__()
         self.in_proj = nn.Linear(d_embed, 3 * d_embed, bias=in_proj_bias) # W_{Q, K, V}, 이후에 Q, K, V로 분리될 예정.
-        self.out_proj = nn.Linear(d_embed, d_embed) # W_0 Weight
+        self.out_proj = nn.Linear(d_embed, d_embed, bias=out_proj_bias) # W_0 Weight
         self.n_heads = n_heads
         self.d_head = d_embed // n_heads
         
@@ -16,8 +16,11 @@ class SelfAttention(nn.Module):
         # x : (Batch_size, Seq_Len, Dim)
         
         input_shape = x.shape
+        
+        # (Batch_Size, Seq_Len, Dim)
         batch_size, sequence_length, d_embed = input_shape
         
+        # (Batch_size, Seq_Len, Dim)
         intermim_shape = (batch_size, sequence_length, self.n_heads, self.d_head)
         
         # (Batch_size, Seq_Len, Dim) -> (Batch_size, Seq_Len, Dim * 3) -> 3 tensors of shape (Batch_size, Seq_Len, Dim)
