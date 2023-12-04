@@ -322,7 +322,8 @@ class Diffusion(nn.Module):
         # context : from CLIP output (Batch_Size, Seq_Len, Dim(=768))
         # time : (1, 320)
         
-        # TODO : time은 왜 batch 개념이 없는가.
+        # time은 왜 batch 개념이 없는가 -> 각 Batch마다 따로 time_embedding을 timestep t에 맞게 생성시켜줘야하기 때문에
+        # 해당 process를 아래와 같이 구현했다고 생각하면 될 듯.
         # (1, 320) -> (1, 1280)
         time = self.time_embedding(time)
         
