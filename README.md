@@ -1,5 +1,6 @@
 # DL_Study_Log
 Deep Learning Study 기록을 남기는 Repo입니다!
+**Implementation**은 실제 구현 코드가 있고, **Review**는 정리한 PDF가 있습니다.
 
 ## PR Naming Convention
 - 본 스터디에서 진행된 다른 분들의 정리된 자료를보고 싶으신 분들은 [여기](https://www.notion.so/gkswns3708/AI-DL-Study-e5cc40f62b86422b9967e48d246aba88?pvs=4)를 참고해주시면 됩니다.
